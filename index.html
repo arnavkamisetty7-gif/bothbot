@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatGPT-like Interface</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .container { max-width: 600px; margin: auto; }
+        .chat-box { border: 1px solid #ccc; padding: 10px; height: 400px; overflow-y: scroll; }
+        .input-area { display: flex; }
+        input[type='text'] { flex: 1; padding: 10px; }
+        button { padding: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Chat Interface</h1>
+        <div id="auth" style="display: block;">
+            <label for="password">Enter Password:</label>
+            <input type="password" id="password">
+            <button onclick="authenticate()">Login</button>
+        </div>
+        <div id="chat-section" style="display: none;">
+            <div id="chat-box" class="chat-box"></div>
+            <div class="input-area">
+                <input type="text" id="user-input" placeholder="Type your question...">
+                <button onclick="sendMessage()">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const correctPassword = 'goat';
+        const chatBox = document.getElementById('chat-box');
+
+        function authenticate() {
+            const passwordInput = document.getElementById('password').value;
+            if (passwordInput === correctPassword) {
+                document.getElementById('auth').style.display = 'none';
+                document.getElementById('chat-section').style.display = 'block';
+            } else {
+                alert('Incorrect Password.');
+            }
+        }
+
+        function sendMessage() {
+            const userInput = document.getElementById('user-input').value;
+            if (userInput.trim() === '') return;
+            chatBox.innerHTML += `<div>User: ${userInput}</div>`;
+            document.getElementById('user-input').value = '';
+
+            // Simulate an AI response
+            fetch('https://api.openai.com/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Authorization': 'Bearer YOUR_API_KEY', // Replace with your API key
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    model: 'gpt-3.5-turbo',
+                    messages: [{ role: 'user', content: userInput }],
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                const aiMessage = data.choices[0].message.content;
+                chatBox.innerHTML += `<div>AI: ${aiMessage}</div>`;
+                chatBox.scrollTop = chatBox.scrollHeight;
+            });
+        }
+    </script>
+</body>
+</html>
